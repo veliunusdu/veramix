@@ -25,12 +25,21 @@ export default function SearchBar() {
 
   return (
     <form onSubmit={handleSearch} className="mb-6">
-      <input
-        name="search"
-        defaultValue={searchParams.get('search') ?? ''}
-        placeholder="Ürün ara..."
-        className={`w-full max-w-md border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${isPending ? 'opacity-50' : ''}`}
-      />
+      <div className="flex gap-2 max-w-md">
+        <input
+          name="search"
+          defaultValue={searchParams.get('search') ?? ''}
+          placeholder="Ürün ara..."
+          className={`flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${isPending ? 'opacity-50' : ''}`}
+        />
+        <button
+          type="submit"
+          disabled={isPending}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        >
+          Ara
+        </button>
+      </div>
     </form>
   )
 }
