@@ -11,7 +11,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params
   const product = await prisma.product.findUnique({
     where: { id },
-    include: { categories: { include: { category: true } } },
+    include: {
+      categories: { include: { category: true } },
+      images: { orderBy: { isPrimary: 'desc' } },
+    },
   })
 
   if (!product) return NextResponse.json({ error: 'Bulunamadı' }, { status: 404 })

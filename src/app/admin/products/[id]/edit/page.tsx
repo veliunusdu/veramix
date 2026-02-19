@@ -3,12 +3,20 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { updateProduct, deleteProduct, toggleProductStatus } from '@/lib/actions/product'
+import ImageUploader from '@/components/admin/ImageUploader'
 
 const categoryOptions = [
   { slug: 'elektronik', label: 'Elektronik' },
   { slug: 'giyim', label: 'Giyim' },
   { slug: 'kitap', label: 'Kitap' },
 ]
+
+type ImageRecord = {
+  id: string
+  url: string
+  isPrimary: boolean
+  storagePath: string
+}
 
 type Product = {
   id: string
@@ -19,6 +27,7 @@ type Product = {
   stock: number
   status: string
   categories: { category: { slug: string } }[]
+  images: ImageRecord[]
 }
 
 export default function EditProductPage() {
@@ -198,6 +207,11 @@ export default function EditProductPage() {
           {loading ? 'Kaydediliyor...' : 'Kaydet'}
         </button>
       </form>
+
+      {/* Image management — separate from form submit */}
+      <div className="bg-white rounded-lg shadow p-6 mt-6">
+        <ImageUploader productId={id} initialImages={product.images} />
+      </div>
     </div>
   )
 }

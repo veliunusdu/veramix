@@ -19,7 +19,7 @@ export async function createProduct(formData: FormData) {
   })
 
   if (!parsed.success) {
-    throw new Error(parsed.error.errors[0].message)
+    throw new Error(parsed.error.issues[0].message)
   }
 
   const { categoryId, ...data } = parsed.data
@@ -53,7 +53,7 @@ export async function updateProduct(id: string, formData: FormData) {
     categoryId: formData.get('categoryId'),
   })
 
-  if (!parsed.success) throw new Error(parsed.error.errors[0].message)
+  if (!parsed.success) throw new Error(parsed.error.issues[0].message)
 
   const { categoryId, ...data } = parsed.data
 
