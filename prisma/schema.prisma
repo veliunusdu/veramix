@@ -40,6 +40,7 @@ model Product {
   price       Decimal           @db.Decimal(10, 2)
   stock       Int               @default(0)
   status      ProductStatus     @default(DRAFT)
+  isFeatured  Boolean           @default(false)
   images      ProductImage[]
   categories  ProductCategory[]
   createdAt   DateTime          @default(now())

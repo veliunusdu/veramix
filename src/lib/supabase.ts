@@ -1,17 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
+import { assertSupabaseStorageEnv, getSupabaseBucket, loadStorageEnv } from '@/lib/storage'
 
 // Server-only client using service_role key — never expose to the browser
 export function createAdminStorageClient() {
-  const url = process.env.SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  loadStorageEnv()
+  assertSupabaseStorageEnv()
+  const url = process.env.SUPABASE_URL?.trim()
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
 
-  if (!url || !key) {
-    throw new Error('SUPABASE_URL veya SUPABASE_SERVICE_ROLE_KEY eksik')
-  }
+  if (!url || !key) throw new Error('SUPABASE_URL veya SUPABASE_SERVICE_ROLE_KEY eksik')
 
   return createClient(url, key, {
     auth: { persistSession: false },
   })
 }
 
-export const STORAGE_BUCKET = 'product-images'
+export const STORAGE_BUCKET = getSupabaseBucket()

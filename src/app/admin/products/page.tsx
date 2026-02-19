@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import FeaturedToggle from '@/components/admin/FeaturedToggle'
 
 export default async function AdminProductsPage() {
   const products = await prisma.product.findMany({
@@ -8,6 +9,7 @@ export default async function AdminProductsPage() {
     },
     orderBy: { createdAt: 'desc' },
   })
+
 
   return (
     <div>
@@ -30,6 +32,7 @@ export default async function AdminProductsPage() {
               <th className="text-left px-6 py-3 font-medium text-gray-500">Fiyat</th>
               <th className="text-left px-6 py-3 font-medium text-gray-500">Stok</th>
               <th className="text-left px-6 py-3 font-medium text-gray-500">Durum</th>
+              <th className="text-center px-6 py-3 font-medium text-gray-500" title="Anasayfa öne çıkan">★ Öne Çıkan</th>
               <th className="text-left px-6 py-3 font-medium text-gray-500">İşlem</th>
             </tr>
           </thead>
@@ -54,6 +57,9 @@ export default async function AdminProductsPage() {
                     }`}>
                       {product.status === 'PUBLISHED' ? 'Yayında' : 'Taslak'}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <FeaturedToggle id={product.id} isFeatured={product.isFeatured} />
                   </td>
                   <td className="px-6 py-4">
                     <Link

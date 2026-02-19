@@ -7,12 +7,14 @@ import { loginSchema } from '@/lib/validation'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({})
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setError('')
+    setFormError('')
+    setFieldErrors({})
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
@@ -23,7 +25,12 @@ export default function LoginPage() {
 
     const parsed = loginSchema.safeParse(data)
     if (!parsed.success) {
-      setError(parsed.error.issues[0].message)
+      const flat = parsed.error.flatten().fieldErrors
+      setFieldErrors({
+        email: flat.email?.[0],
+        password: flat.password?.[0],
+      })
+      setFormError('Lütfen giriş alanlarını kontrol edin.')
       setLoading(false)
       return
     }
@@ -35,7 +42,7 @@ export default function LoginPage() {
     })
 
     if (result?.error) {
-      setError('E-posta veya şifre hatalı')
+      setFormError('E-posta veya şifre hatalı')
     } else {
       router.push('/admin/dashboard')
     }
@@ -44,37 +51,62 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Yönetici Girişi</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">E-posta</label>
-            <input
-              name="email"
-              type="email"
-              required
-              className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Şifre</label>
-            <input
-              name="password"
-              type="password"
-              required
-              className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
-          </button>
-        </form>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <a href="/" className="inline-block">
+            <span className="text-3xl font-extrabold text-blue-700">Veramix</span>
+          </a>
+          <p className="text-gray-400 text-sm mt-1">Yönetici Paneli</p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+          <h1 className="text-xl font-bold text-gray-900 mb-1">Giriş Yap</h1>
+          <p className="text-sm text-gray-400 mb-6">Devam etmek için kimlik bilgilerinizi girin.</p>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">E-posta</label>
+              <input
+                name="email"
+                type="email"
+                required
+                placeholder="ornek@veramix.com"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+              {fieldErrors.email && <p className="text-red-500 text-xs mt-1">{fieldErrors.email}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Şifre</label>
+              <input
+                name="password"
+                type="password"
+                required
+                placeholder="••••••••"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+              {fieldErrors.password && <p className="text-red-500 text-xs mt-1">{fieldErrors.password}</p>}
+            </div>
+            {formError && (
+              <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-2.5 text-sm text-red-600">
+                {formError}
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors mt-2"
+            >
+              {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+            </button>
+          </form>
+        </div>
+
+        <p className="text-center text-sm text-gray-400 mt-6">
+          <a href="/" className="hover:text-blue-600 transition-colors">← Ana Sayfaya Dön</a>
+        </p>
       </div>
     </div>
   )

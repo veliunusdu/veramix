@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { sanitizeEntityId } from '@/lib/api-security'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -8,7 +9,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { id } = await params
+  const { id: rawId } = await params
+  const id = sanitizeEntityId(rawId)
+  if (!id) return NextResponse.json({ error: 'Geçersiz ürün kimliği' }, { status: 400 })
+
   const product = await prisma.product.findUnique({
     where: { id },
     include: {

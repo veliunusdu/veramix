@@ -2,6 +2,11 @@
 
 import { useRef, useState } from 'react'
 import { setImageAsPrimary, deleteImage } from '@/lib/actions/image'
+import {
+  getUploadFailureMessage,
+  parseUploadResponseText,
+  type UploadResponsePayload,
+} from '@/components/admin/image-upload-utils'
 
 type ImageRecord = {
   id: string
@@ -16,30 +21,40 @@ type Props = {
 }
 
 export default function ImageUploader({ productId, initialImages }: Props) {
-  const [images, setImages] = useState<ImageRecord[]>(initialImages)
+  const [images, setImages] = useState<ImageRecord[]>([...initialImages].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary)))
   const [uploading, setUploading] = useState(false)
+  const [busyImageId, setBusyImageId] = useState('')
   const [error, setError] = useState('')
   const [dragOver, setDragOver] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  function sortImages(next: ImageRecord[]) {
+    return [...next].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary))
+  }
 
   async function uploadFile(file: File) {
     setError('')
     setUploading(true)
 
-    const form = new FormData()
-    form.append('file', file)
-    form.append('productId', productId)
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      form.append('productId', productId)
 
-    const res = await fetch('/api/upload', { method: 'POST', body: form })
-    const data = await res.json()
+      const res = await fetch('/api/upload', { method: 'POST', body: form })
+      const text = await res.text()
+      const data = parseUploadResponseText(text) as Partial<ImageRecord> & UploadResponsePayload
 
-    if (!res.ok) {
-      setError(data.error ?? 'Yükleme başarısız')
-    } else {
-      setImages((prev) => [...prev, data])
+      if (!res.ok) {
+        setError(getUploadFailureMessage(res.status, data))
+      } else {
+        setImages((prev) => sortImages([...prev, data as ImageRecord]))
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Yükleme başarısız')
+    } finally {
+      setUploading(false)
     }
-
-    setUploading(false)
   }
 
   async function handleFiles(files: FileList | null) {
@@ -50,21 +65,39 @@ export default function ImageUploader({ productId, initialImages }: Props) {
   }
 
   async function handleSetPrimary(imageId: string) {
-    await setImageAsPrimary(imageId, productId)
-    setImages((prev) =>
-      prev.map((img) => ({ ...img, isPrimary: img.id === imageId }))
-    )
+    setError('')
+    setBusyImageId(imageId)
+
+    try {
+      await setImageAsPrimary(imageId, productId)
+      setImages((prev) =>
+        sortImages(prev.map((img) => ({ ...img, isPrimary: img.id === imageId })))
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Birincil görsel güncellenemedi')
+    } finally {
+      setBusyImageId('')
+    }
   }
 
   async function handleDelete(image: ImageRecord) {
     if (!confirm('Bu görseli silmek istediğinize emin misiniz?')) return
-    await deleteImage(image.id, productId)
-    const remaining = images.filter((img) => img.id !== image.id)
-    // Re-apply primary flag if needed
-    if (image.isPrimary && remaining.length > 0) {
-      remaining[0] = { ...remaining[0], isPrimary: true }
+
+    setError('')
+    setBusyImageId(image.id)
+
+    try {
+      await deleteImage(image.id, productId)
+      const remaining = images.filter((img) => img.id !== image.id)
+      if (image.isPrimary && remaining.length > 0) {
+        remaining[0] = { ...remaining[0], isPrimary: true }
+      }
+      setImages(sortImages(remaining))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Görsel silinemedi')
+    } finally {
+      setBusyImageId('')
     }
-    setImages(remaining)
   }
 
   return (
@@ -91,6 +124,7 @@ export default function ImageUploader({ productId, initialImages }: Props) {
                   <button
                     type="button"
                     onClick={() => handleSetPrimary(img.id)}
+                    disabled={busyImageId === img.id}
                     className="flex-1 bg-white text-gray-800 text-xs py-1 rounded hover:bg-gray-100"
                   >
                     Ana yap
@@ -99,6 +133,7 @@ export default function ImageUploader({ productId, initialImages }: Props) {
                 <button
                   type="button"
                   onClick={() => handleDelete(img)}
+                  disabled={busyImageId === img.id}
                   className="flex-1 bg-red-500 text-white text-xs py-1 rounded hover:bg-red-600"
                 >
                   Sil

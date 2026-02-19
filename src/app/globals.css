@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+/* ── Tailwind v4 CSS theme tokens ─────────────────────── */
+@theme {
+  --color-primary:          #144bb8;
+  --color-primary-dark:     #0f3a91;
+  --color-background-light: #f6f6f8;
+  --color-background-dark:  #111621;
+
+  --font-display: "Inter", sans-serif;
+}
+
+/* glass effect used by header */
+.glass-effect {
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	background-color: rgba(255, 255, 255, 0.9);
+}
+.dark .glass-effect {
+	background-color: rgba(17, 22, 33, 0.9);
+}

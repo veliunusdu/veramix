@@ -16,6 +16,39 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Image Upload Setup
+
+This project supports `supabase` (default) and `cloudinary` as image storage providers.
+
+Set these variables in `.env.local`:
+
+```bash
+IMAGE_STORAGE_PROVIDER="supabase" # or "cloudinary"
+SUPABASE_STORAGE_BUCKET="product-images"
+```
+
+Supabase mode:
+
+```bash
+SUPABASE_URL="https://<project-id>.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"
+```
+
+Cloudinary mode:
+
+```bash
+CLOUDINARY_CLOUD_NAME="<cloud-name>"
+CLOUDINARY_API_KEY="<api-key>"
+CLOUDINARY_API_SECRET="<api-secret>"
+CLOUDINARY_FOLDER="veramix/products" # optional
+```
+
+Create/verify Supabase bucket:
+
+```bash
+npm run storage:setup
+```
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

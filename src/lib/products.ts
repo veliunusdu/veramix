@@ -1,28 +1,14 @@
 import { prisma } from '@/lib/prisma'
+import { buildPublishedProductsWhere } from '@/lib/products-query'
 
 export async function getPublishedProducts(params?: {
   search?: string
   categorySlug?: string
 }) {
   return prisma.product.findMany({
-    where: {
-      status: 'PUBLISHED',
-      ...(params?.search && {
-        OR: [
-          { name: { contains: params.search, mode: 'insensitive' } },
-          { description: { contains: params.search, mode: 'insensitive' } },
-        ],
-      }),
-      ...(params?.categorySlug && {
-        categories: {
-          some: {
-            category: { slug: params.categorySlug },
-          },
-        },
-      }),
-    },
+    where: buildPublishedProductsWhere(params),
     include: {
-      images: { where: { isPrimary: true }, take: 1 },
+      images: { orderBy: [{ isPrimary: 'desc' }, { id: 'asc' }], take: 1 },
       categories: { include: { category: true } },
     },
     orderBy: { createdAt: 'desc' },
@@ -35,6 +21,18 @@ export async function getAllCategories() {
   })
 }
 
+export async function getFeaturedProducts() {
+  return prisma.product.findMany({
+    where: { status: 'PUBLISHED', isFeatured: true },
+    include: {
+      images: { orderBy: [{ isPrimary: 'desc' }, { id: 'asc' }], take: 1 },
+      categories: { include: { category: true } },
+    },
+    orderBy: { updatedAt: 'desc' },
+    take: 8,
+  })
+}
+
 export async function getProductBySlug(slug: string) {
   return prisma.product.findFirst({
     where: {
@@ -42,7 +40,7 @@ export async function getProductBySlug(slug: string) {
       status: 'PUBLISHED',
     },
     include: {
-      images: true,
+      images: { orderBy: [{ isPrimary: 'desc' }, { id: 'asc' }] },
       categories: { include: { category: true } },
     },
   })

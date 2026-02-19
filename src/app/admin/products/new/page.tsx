@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createProduct } from '@/lib/actions/product'
+import { createProduct, type ProductFieldErrors } from '@/lib/actions/product'
 
 const categories = [
   { id: 'elektronik', label: 'Elektronik' },
@@ -12,7 +12,8 @@ const categories = [
 
 export default function NewProductPage() {
   const router = useRouter()
-  const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<ProductFieldErrors>({})
   const [loading, setLoading] = useState(false)
 
   function generateSlug(name: string) {
@@ -26,16 +27,25 @@ export default function NewProductPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setError('')
+    setFormError('')
+    setFieldErrors({})
     setLoading(true)
-    try {
-      await createProduct(new FormData(e.currentTarget))
-    } catch (err: unknown) {
-      if (err instanceof Error && !err.message.includes('NEXT_REDIRECT')) {
-        setError(err.message)
-        setLoading(false)
-      }
+
+    const result = await createProduct(new FormData(e.currentTarget))
+    if (!result.ok) {
+      setFieldErrors(result.fieldErrors)
+      setFormError(result.formError)
+      setLoading(false)
+      return
     }
+
+    if (!result.productId) {
+      setFormError('Ürün oluşturuldu fakat yönlendirme bilgisi alınamadı.')
+      setLoading(false)
+      return
+    }
+
+    router.push(`/admin/products/${result.productId}/edit`)
   }
 
   return (
@@ -57,6 +67,7 @@ export default function NewProductPage() {
             }}
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {fieldErrors.name && <p className="text-red-500 text-xs mt-1">{fieldErrors.name}</p>}
         </div>
 
         <div>
@@ -67,6 +78,7 @@ export default function NewProductPage() {
             required
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
           />
+          {fieldErrors.slug && <p className="text-red-500 text-xs mt-1">{fieldErrors.slug}</p>}
         </div>
 
         <div>
@@ -76,6 +88,7 @@ export default function NewProductPage() {
             rows={3}
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {fieldErrors.description && <p className="text-red-500 text-xs mt-1">{fieldErrors.description}</p>}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -89,6 +102,7 @@ export default function NewProductPage() {
               required
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {fieldErrors.price && <p className="text-red-500 text-xs mt-1">{fieldErrors.price}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Stok</label>
@@ -100,6 +114,7 @@ export default function NewProductPage() {
               required
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {fieldErrors.stock && <p className="text-red-500 text-xs mt-1">{fieldErrors.stock}</p>}
           </div>
         </div>
 
@@ -115,6 +130,7 @@ export default function NewProductPage() {
               <option key={cat.id} value={cat.id}>{cat.label}</option>
             ))}
           </select>
+          {fieldErrors.categoryId && <p className="text-red-500 text-xs mt-1">{fieldErrors.categoryId}</p>}
         </div>
 
         <div>
@@ -126,9 +142,10 @@ export default function NewProductPage() {
             <option value="DRAFT">Taslak</option>
             <option value="PUBLISHED">Yayında</option>
           </select>
+          {fieldErrors.status && <p className="text-red-500 text-xs mt-1">{fieldErrors.status}</p>}
         </div>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {formError && <p className="text-red-500 text-sm">{formError}</p>}
 
         <button
           type="submit"

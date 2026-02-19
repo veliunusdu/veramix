@@ -2,8 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { updateProduct, deleteProduct, toggleProductStatus } from '@/lib/actions/product'
+import {
+  updateProduct,
+  deleteProduct,
+  toggleProductStatus,
+  type ProductFieldErrors,
+} from '@/lib/actions/product'
 import ImageUploader from '@/components/admin/ImageUploader'
+import FeaturedToggle from '@/components/admin/FeaturedToggle'
 
 const categoryOptions = [
   { slug: 'elektronik', label: 'Elektronik' },
@@ -26,6 +32,7 @@ type Product = {
   price: string
   stock: number
   status: string
+  isFeatured: boolean
   categories: { category: { slug: string } }[]
   images: ImageRecord[]
 }
@@ -36,7 +43,8 @@ export default function EditProductPage() {
   const id = params.id as string
 
   const [product, setProduct] = useState<Product | null>(null)
-  const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<ProductFieldErrors>({})
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -55,26 +63,44 @@ export default function EditProductPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setError('')
+    setFormError('')
+    setFieldErrors({})
     setLoading(true)
-    try {
-      await updateProduct(id, new FormData(e.currentTarget))
-    } catch (err: unknown) {
-      if (err instanceof Error && !err.message.includes('NEXT_REDIRECT')) {
-        setError(err.message)
-        setLoading(false)
-      }
+
+    const result = await updateProduct(id, new FormData(e.currentTarget))
+    if (!result.ok) {
+      setFormError(result.formError)
+      setFieldErrors(result.fieldErrors)
+      setLoading(false)
+      return
     }
+
+    router.push('/admin/products')
   }
 
   async function handleDelete() {
     if (!confirm('Bu ürünü silmek istediğinize emin misiniz?')) return
-    await deleteProduct(id)
+
+    setFormError('')
+    const result = await deleteProduct(id)
+    if (!result.ok) {
+      setFormError(result.formError)
+      return
+    }
+
+    router.push('/admin/products')
   }
 
   async function handleToggle() {
     if (!product) return
-    await toggleProductStatus(id, product.status)
+    setFormError('')
+    const result = await toggleProductStatus(id, product.status)
+    if (!result.ok) {
+      setFormError(result.formError)
+      return
+    }
+
+    setProduct((prev) => (prev ? { ...prev, status: result.nextStatus ?? prev.status } : prev))
   }
 
   if (!product) return <div className="p-8 text-gray-500">Yükleniyor...</div>
@@ -99,6 +125,7 @@ export default function EditProductPage() {
           >
             {product.status === 'PUBLISHED' ? 'Taslağa Al' : 'Yayına Al'}
           </button>
+          <FeaturedToggle id={id} isFeatured={product.isFeatured} />
           <button
             onClick={handleDelete}
             className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200"
@@ -121,6 +148,7 @@ export default function EditProductPage() {
             }}
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {fieldErrors.name && <p className="text-red-500 text-xs mt-1">{fieldErrors.name}</p>}
         </div>
 
         <div>
@@ -132,6 +160,7 @@ export default function EditProductPage() {
             required
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
           />
+          {fieldErrors.slug && <p className="text-red-500 text-xs mt-1">{fieldErrors.slug}</p>}
         </div>
 
         <div>
@@ -142,6 +171,7 @@ export default function EditProductPage() {
             rows={3}
             className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {fieldErrors.description && <p className="text-red-500 text-xs mt-1">{fieldErrors.description}</p>}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -156,6 +186,7 @@ export default function EditProductPage() {
               required
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {fieldErrors.price && <p className="text-red-500 text-xs mt-1">{fieldErrors.price}</p>}
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Stok</label>
@@ -167,6 +198,7 @@ export default function EditProductPage() {
               required
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {fieldErrors.stock && <p className="text-red-500 text-xs mt-1">{fieldErrors.stock}</p>}
           </div>
         </div>
 
@@ -183,6 +215,7 @@ export default function EditProductPage() {
               <option key={cat.slug} value={cat.slug}>{cat.label}</option>
             ))}
           </select>
+          {fieldErrors.categoryId && <p className="text-red-500 text-xs mt-1">{fieldErrors.categoryId}</p>}
         </div>
 
         <div>
@@ -195,9 +228,10 @@ export default function EditProductPage() {
             <option value="DRAFT">Taslak</option>
             <option value="PUBLISHED">Yayında</option>
           </select>
+          {fieldErrors.status && <p className="text-red-500 text-xs mt-1">{fieldErrors.status}</p>}
         </div>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {formError && <p className="text-red-500 text-sm">{formError}</p>}
 
         <button
           type="submit"

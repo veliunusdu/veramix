@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Veramix',
-  description: 'Veramix Yönetim Paneli',
+  title: 'Veramix | Premium Su Armatürleri',
+  description: 'Veramix — modern, dayanıklı ve şık su armatürü çözümleri.',
 }
 
 export default function RootLayout({
@@ -16,6 +16,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet"
+        />
+      </head>
       <body suppressHydrationWarning className={inter.className}>{children}</body>
     </html>
   )
