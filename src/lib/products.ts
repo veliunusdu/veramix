@@ -34,3 +34,16 @@ export async function getAllCategories() {
     orderBy: { name: 'asc' },
   })
 }
+
+export async function getProductBySlug(slug: string) {
+  return prisma.product.findFirst({
+    where: {
+      slug,
+      status: 'PUBLISHED',
+    },
+    include: {
+      images: true,
+      categories: { include: { category: true } },
+    },
+  })
+}
