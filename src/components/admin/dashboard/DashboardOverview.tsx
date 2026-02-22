@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import { Package, FileText, AlertCircle, TrendingDown, Plus, ExternalLink, ArrowRight } from 'lucide-react'
 
 type PriceLike = number | string | { toNumber: () => number }
 
@@ -53,167 +54,198 @@ export default async function DashboardOverview() {
     .sort((a, b) => b._count.products - a._count.products)
     .slice(0, 4)
 
+  const stats = [
+    {
+      title: 'Toplam Ürün',
+      value: totalProducts,
+      desc: `${publishedProducts} yayında`,
+      icon: Package,
+      color: 'text-zinc-900',
+    },
+    {
+      title: 'Taslak',
+      value: draftProducts,
+      desc: pct(draftRate),
+      icon: FileText,
+      color: 'text-zinc-600',
+    },
+    {
+      title: 'Tükenen Stok',
+      value: outOfStockProducts,
+      desc: 'Yenileme gerekiyor',
+      icon: AlertCircle,
+      color: 'text-red-600',
+    },
+    {
+      title: 'Az Stok',
+      value: lowStockProducts,
+      desc: '5 adet ve altı',
+      icon: TrendingDown,
+      color: 'text-orange-600',
+    },
+  ]
+
   return (
-    <div className="space-y-8">
-      <section className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-sky-600/25 via-indigo-500/10 to-slate-900/40 p-6 shadow-2xl shadow-slate-900/20 backdrop-blur sm:p-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
-            <p className="inline-flex items-center gap-2 rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-100">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-              Operasyon Merkezi
-            </p>
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">Yönetim Paneli</h1>
-            <p className="mt-3 text-sm leading-6 text-slate-200 sm:text-base">
-              Ürün performansını, stok riskini ve yayın durumunu tek ekran üzerinden takip edin. Hızlı aksiyonlar ile
-              içerik ve katalog güncellemelerini anında yönetin.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/admin/products/new"
-              className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:-translate-y-0.5 hover:bg-slate-100"
-            >
-              + Yeni Ürün
-            </Link>
-            <Link
-              href="/products"
-              className="inline-flex items-center justify-center rounded-xl border border-white/40 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/10"
-            >
-              Vitrini Gör
-            </Link>
-          </div>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Dashboard</h1>
+          <p className="mt-1 text-sm text-zinc-500">Katalog ve stok durumuna genel bakış</p>
         </div>
-      </section>
-
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: 'Toplam Ürün',
-            value: totalProducts,
-            detail: `${publishedProducts} yayında`,
-            tone: 'from-sky-500/25 to-slate-900/30',
-          },
-          {
-            label: 'Taslak Ürün',
-            value: draftProducts,
-            detail: pct(draftRate),
-            tone: 'from-amber-500/25 to-slate-900/30',
-          },
-          {
-            label: 'Tükenen Ürün',
-            value: outOfStockProducts,
-            detail: 'Acil yenileme önerilir',
-            tone: 'from-rose-500/25 to-slate-900/30',
-          },
-          {
-            label: 'Az Stok',
-            value: lowStockProducts,
-            detail: '5 adet ve altı',
-            tone: 'from-violet-500/25 to-slate-900/30',
-          },
-        ].map((item) => (
-          <article
-            key={item.label}
-            className={`rounded-2xl border border-white/10 bg-gradient-to-br ${item.tone} p-5 text-white shadow-lg shadow-slate-900/20 transition hover:-translate-y-0.5`}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/products"
+            target="_blank"
+            className="group flex h-10 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-medium text-zinc-700 shadow-sm ring-1 ring-inset ring-black/5 transition-all hover:bg-zinc-50 hover:text-zinc-900"
           >
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-200/80">{item.label}</p>
-            <p className="mt-3 text-3xl font-extrabold">{item.value}</p>
-            <p className="mt-2 text-sm text-slate-200">{item.detail}</p>
-          </article>
-        ))}
-      </section>
+            <ExternalLink className="h-4 w-4 text-zinc-400 group-hover:text-zinc-600" />
+            Vitrin
+          </Link>
+          <Link
+            href="/admin/products/new"
+            className="flex h-10 items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 text-sm font-medium text-white shadow-sm shadow-zinc-900/20 transition-all hover:bg-zinc-800 hover:shadow-md hover:shadow-zinc-900/20"
+          >
+            <Plus className="h-4 w-4" />
+            Yeni Ürün
+          </Link>
+        </div>
+      </div>
 
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-slate-900">Yeni Eklenen Ürünler</h2>
-            <Link href="/admin/products" className="text-sm font-semibold text-blue-700 hover:text-blue-800">
-              Tüm ürünler
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((item) => {
+          const Icon = item.icon
+          return (
+            <div 
+              key={item.title} 
+              className="relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-zinc-500">{item.title}</p>
+                <Icon className={`h-5 w-5 ${item.color} opacity-80`} />
+              </div>
+              <div className="mt-4 flex items-baseline gap-2">
+                <p className="text-3xl font-bold tracking-tight text-zinc-900">{item.value}</p>
+              </div>
+              <p className="mt-1 text-sm text-zinc-500">{item.desc}</p>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Recent Products */}
+        <div className="lg:col-span-2 flex flex-col rounded-2xl bg-white shadow-sm ring-1 ring-black/5 overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-black/5">
+            <h2 className="text-base font-semibold text-zinc-900">Son Eklenen Ürünler</h2>
+            <Link 
+              href="/admin/products" 
+              className="group flex items-center gap-1 text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900"
+            >
+              Tümünü gör
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
-
-          <div className="space-y-3">
+          <div className="flex-1 divide-y divide-black/5">
             {recentProducts.length === 0 ? (
-              <p className="rounded-xl bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-                Henüz ürün bulunmuyor.
-              </p>
+              <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-50">
+                  <Package className="h-6 w-6 text-zinc-400" />
+                </div>
+                <p className="mt-4 text-sm font-medium text-zinc-900">Ürün bulunmuyor</p>
+                <p className="mt-1 text-sm text-zinc-500">Henüz hiç ürün eklemediniz.</p>
+              </div>
             ) : (
               recentProducts.map((product) => (
                 <Link
                   key={product.id}
                   href={`/admin/products/${product.id}/edit`}
-                  className="group flex items-center gap-3 rounded-xl border border-slate-100 p-3 transition hover:border-slate-300 hover:bg-slate-50"
+                  className="group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-zinc-50/80"
                 >
-                  <div className="h-14 w-14 overflow-hidden rounded-lg bg-slate-100">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-100 ring-1 ring-inset ring-black/5">
                     {product.images[0]?.url ? (
                       <img
                         src={product.images[0].url}
                         alt={product.name}
                         loading="lazy"
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-[10px] font-medium text-slate-500">
-                        Görsel
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Package className="h-5 w-5 text-zinc-300" />
                       </div>
                     )}
                   </div>
-
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-slate-900">{product.name}</p>
-                    <p className="truncate text-xs text-slate-500">
+                    <p className="truncate text-sm font-semibold text-zinc-900">{product.name}</p>
+                    <p className="mt-0.5 truncate text-xs text-zinc-500">
                       {product.categories[0]?.category.name ?? 'Kategori yok'}
                     </p>
                   </div>
-
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-slate-900">{asCurrency(product.price as PriceLike)}</p>
-                    <p
-                      className={`text-xs font-medium ${
-                        product.status === 'PUBLISHED' ? 'text-emerald-600' : 'text-amber-600'
+                  <div className="flex items-center gap-4 text-right">
+                    <div className="hidden sm:block">
+                      <p className="text-sm font-semibold text-zinc-900">{asCurrency(product.price as PriceLike)}</p>
+                    </div>
+                    <span
+                      className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                        product.status === 'PUBLISHED'
+                          ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/10'
+                          : 'bg-zinc-50 text-zinc-600 ring-zinc-500/10'
                       }`}
                     >
                       {product.status === 'PUBLISHED' ? 'Yayında' : 'Taslak'}
-                    </p>
+                    </span>
                   </div>
                 </Link>
               ))
             )}
           </div>
-        </article>
+        </div>
 
-        <article className="space-y-6">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h3 className="text-base font-bold text-slate-900">Katalog Sağlığı</h3>
-            <div className="mt-4 space-y-4">
+        {/* Sidebar panels */}
+        <div className="flex flex-col gap-6">
+          {/* Catalog Health */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+            <h3 className="text-base font-semibold text-zinc-900">Katalog Sağlığı</h3>
+            <div className="mt-6 space-y-5">
               {[
-                { label: 'Yayında', value: publishRate, color: 'bg-emerald-500' },
-                { label: 'Taslak', value: draftRate, color: 'bg-amber-500' },
-                { label: 'Stok Riski', value: stockRiskRate, color: 'bg-rose-500' },
+                { label: 'Yayında', value: publishRate, bg: 'bg-emerald-500' },
+                { label: 'Taslak', value: draftRate, bg: 'bg-zinc-400' },
+                { label: 'Stok Riski', value: stockRiskRate, bg: 'bg-red-500' },
               ].map((item) => (
                 <div key={item.label}>
-                  <div className="mb-1 flex items-center justify-between text-sm">
-                    <span className="font-medium text-slate-700">{item.label}</span>
-                    <span className="font-semibold text-slate-900">{pct(item.value)}</span>
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-sm font-medium text-zinc-600">{item.label}</span>
+                    <span className="text-sm font-semibold text-zinc-900">{pct(item.value)}</span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                    <div className={`h-full ${item.color}`} style={{ width: `${Math.min(item.value, 100)}%` }} />
+                  <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
+                    <div 
+                      className={`h-full rounded-full ${item.bg} transition-all duration-500`} 
+                      style={{ width: `${Math.max(0, Math.min(item.value, 100))}%` }} 
+                    />
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h3 className="text-base font-bold text-slate-900">Kategori Dağılımı</h3>
-            <div className="mt-4 space-y-3">
+          {/* Categories */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+            <h3 className="text-base font-semibold text-zinc-900">Popüler Kategoriler</h3>
+            <div className="mt-6 space-y-4">
               {topCategories.length === 0 ? (
-                <p className="text-sm text-slate-500">Kategori verisi bulunmuyor.</p>
+                <p className="text-sm text-zinc-500">Kategori bulunamadı.</p>
               ) : (
                 topCategories.map((category) => (
-                  <div key={category.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-                    <span className="text-sm font-medium text-slate-700">{category.name}</span>
-                    <span className="rounded-full bg-slate-900 px-2.5 py-0.5 text-xs font-semibold text-white">
+                  <div key={category.id} className="group flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-2 w-2 rounded-full bg-zinc-300 transition-colors group-hover:bg-zinc-900" />
+                      <span className="text-sm font-medium text-zinc-600 transition-colors group-hover:text-zinc-900">
+                        {category.name}
+                      </span>
+                    </div>
+                    <span className="inline-flex min-w-8 items-center justify-center rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-semibold text-zinc-700">
                       {category._count.products}
                     </span>
                   </div>
@@ -221,8 +253,8 @@ export default async function DashboardOverview() {
               )}
             </div>
           </div>
-        </article>
-      </section>
+        </div>
+      </div>
     </div>
   )
 }
