@@ -37,9 +37,16 @@ export default async function proxy(req: NextRequest) {
   }
 
   if (isAdminPage || isAdminApi) {
+    const secret = process.env.AUTH_SECRET
+    if (!secret) {
+      // AUTH_SECRET not configured — block access rather than crash
+      if (isAdminApi) return NextResponse.json({ error: 'Server misconfiguration' }, { status: 503 })
+      return NextResponse.redirect(new URL('/login', req.nextUrl))
+    }
+
     const token = await getToken({
       req,
-      secret: process.env.AUTH_SECRET,
+      secret,
       secureCookie: process.env.NODE_ENV === 'production',
     })
 
