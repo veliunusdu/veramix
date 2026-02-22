@@ -1,9 +1,6 @@
-import NextAuth from 'next-auth'
+import { getToken } from 'next-auth/jwt'
 import { NextResponse, type NextRequest } from 'next/server'
-import { authConfig } from '@/lib/auth.config'
 import { consumeRateLimit } from '@/lib/rate-limit'
-
-const { auth } = NextAuth(authConfig)
 
 function getClientIp(req: NextRequest) {
   const forwardedFor = req.headers.get('x-forwarded-for')
@@ -11,7 +8,7 @@ function getClientIp(req: NextRequest) {
   return req.headers.get('x-real-ip') ?? 'unknown'
 }
 
-export default auth((req) => {
+export default async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname
   const isApiRoute = pathname.startsWith('/api')
   const isAuthApi = pathname.startsWith('/api/auth')
@@ -40,19 +37,25 @@ export default auth((req) => {
   }
 
   if (isAdminPage || isAdminApi) {
-    if (!req.auth?.user) {
+    const token = await getToken({
+      req,
+      secret: process.env.AUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === 'production',
+    })
+
+    if (!token) {
       if (isAdminApi) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       return NextResponse.redirect(new URL('/login', req.nextUrl))
     }
 
-    if (req.auth.user.role !== 'ADMIN') {
+    if (token.role !== 'ADMIN') {
       if (isAdminApi) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
       return NextResponse.redirect(new URL('/unauthorized', req.nextUrl))
     }
   }
 
   return NextResponse.next()
-})
+}
 
 export const config = {
   matcher: ['/admin/:path*', '/api/:path*'],
