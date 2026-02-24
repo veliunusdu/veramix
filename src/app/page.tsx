@@ -32,12 +32,36 @@ const FEATURES = [
 ]
 
 const COLLECTION_PRODUCTS = [
-  'Lavabo bataryası 🚰',
-  'Mutfak bataryası 🍽️',
-  'Duş bataryası 🚿',
-  'Küvet bataryası 🛁',
-  'El duşu seti 🚿',
-  'Taharet musluğu',
+  {
+    name: 'Lavabo bataryası 🚰',
+    alt: 'Modern krom lavabo bataryası',
+    image: 'https://images.unsplash.com/photo-1586798271453-3b60b56cbba8?auto=format&fit=crop&w=1400&q=80',
+  },
+  {
+    name: 'Mutfak bataryası 🍽️',
+    alt: 'Modern mutfak tezgahı üzerinde eviye bataryası',
+    image: 'https://images.unsplash.com/photo-1737737253994-a543f89a637b?auto=format&fit=crop&w=1400&q=80',
+  },
+  {
+    name: 'Duş bataryası 🚿',
+    alt: 'Duvar tipi duş bataryası ve el duşu',
+    image: 'https://images.unsplash.com/photo-1714399913207-b9198ba711f9?auto=format&fit=crop&w=1400&q=80',
+  },
+  {
+    name: 'Küvet bataryası 🛁',
+    alt: 'Küvet üzerinde klasik tarz batarya',
+    image: 'https://images.unsplash.com/photo-1637172459136-6e9434076a61?auto=format&fit=crop&w=1400&q=80',
+  },
+  {
+    name: 'El duşu seti 🚿',
+    alt: 'Krom el duşu seti ve spiral hortum',
+    image: 'https://images.unsplash.com/photo-1761353855019-05f2f3ed9c43?auto=format&fit=crop&w=1400&q=80',
+  },
+  {
+    name: 'Taharet musluğu',
+    alt: 'Banyoda bidet ve taharet musluğu görünümü',
+    image: 'https://images.unsplash.com/photo-1715163792431-e07a8538bc65?auto=format&fit=crop&w=1400&q=80',
+  },
 ]
 
 export default async function Page() {
@@ -186,12 +210,19 @@ export default async function Page() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {COLLECTION_PRODUCTS.map((product) => (
-                <div key={product} className="rounded-xl border border-slate-200 bg-slate-50 p-6 hover:border-primary/40 hover:shadow-md transition-all">
-                  <div className="w-11 h-11 rounded-full bg-blue-100 text-primary flex items-center justify-center mb-4">
-                    <span className="material-icons">plumbing</span>
+                <div key={product.name} className="relative aspect-[4/3] rounded-xl overflow-hidden group shadow-sm border border-slate-200">
+                  <Image
+                    src={product.image}
+                    alt={product.alt}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute left-5 right-5 bottom-5">
+                    <h3 className="font-semibold text-white text-lg leading-tight">{product.name}</h3>
+                    <p className="text-xs text-white/80 mt-1">Premium koleksiyon</p>
                   </div>
-                  <h3 className="font-semibold text-slate-900 text-lg">{product}</h3>
-                  <p className="text-sm text-slate-500 mt-2">Modern tasarım, dayanıklı gövde ve uzun ömürlü kullanım.</p>
                 </div>
               ))}
             </div>
