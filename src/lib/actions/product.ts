@@ -16,16 +16,53 @@ import {
 } from '@/lib/storage-cleanup'
 
 export type ProductFieldErrors = Partial<
-  Record<'name' | 'slug' | 'description' | 'price' | 'stock' | 'status' | 'categoryId', string>
+  Record<'name' | 'slug' | 'description' | 'price' | 'stock', string>
 >
 
 type ProductActionResult =
-  | { ok: true; productId?: string; nextStatus?: 'DRAFT' | 'PUBLISHED' }
+  | { ok: true; productId?: string }
   | { ok: false; formError: string; fieldErrors: ProductFieldErrors }
 
 type ProductImageDeleteInput = {
   storagePath: string
   url: string
+}
+
+function isIgnorableSupabaseRemoveError(message: string) {
+  const normalized = message.toLowerCase()
+  return (
+    normalized.includes('not found') ||
+    normalized.includes('no such file') ||
+    normalized.includes('404')
+  )
+}
+
+async function removeSupabasePaths(
+  supabase: ReturnType<typeof createAdminStorageClient>,
+  paths: string[],
+  productId: string,
+) {
+  const batches = chunkStrings(paths, 100)
+  for (const batch of batches) {
+    const { error } = await supabase.storage.from(STORAGE_BUCKET).remove(batch)
+    if (!error) continue
+
+    // Fallback to per-file removal so one stale path does not block full product deletion.
+    for (const path of batch) {
+      const { error: singleError } = await supabase.storage.from(STORAGE_BUCKET).remove([path])
+      if (!singleError) continue
+      if (isIgnorableSupabaseRemoveError(singleError.message)) {
+        logger.warn('Supabase storage path already missing during product delete', {
+          productId,
+          storagePath: path,
+          error: singleError.message,
+        })
+        continue
+      }
+
+      throw new Error(`Supabase dosya silme başarısız: ${singleError.message}`)
+    }
+  }
 }
 
 async function deleteCloudinaryAssets(images: ProductImageDeleteInput[]) {
@@ -73,13 +110,7 @@ async function deleteSupabaseAssets(productId: string, images: ProductImageDelet
 
   if (allPaths.length === 0) return
 
-  const batches = chunkStrings(allPaths, 100)
-  for (const batch of batches) {
-    const { error } = await supabase.storage.from(STORAGE_BUCKET).remove(batch)
-    if (error) {
-      throw new Error(`Supabase dosya silme başarısız: ${error.message}`)
-    }
-  }
+  await removeSupabasePaths(supabase, allPaths, productId)
 }
 
 async function deleteProductAssets(productId: string, images: ProductImageDeleteInput[]) {
@@ -108,8 +139,6 @@ function zodFieldErrors(error: { flatten: () => { fieldErrors: Record<string, st
     description: flattened.description?.[0],
     price: flattened.price?.[0],
     stock: flattened.stock?.[0],
-    status: flattened.status?.[0],
-    categoryId: flattened.categoryId?.[0],
   } satisfies ProductFieldErrors
 }
 
@@ -123,8 +152,6 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
       description: formData.get('description'),
       price: formData.get('price'),
       stock: formData.get('stock'),
-      status: formData.get('status'),
-      categoryId: formData.get('categoryId'),
     })
 
     if (!parsed.success) {
@@ -135,24 +162,7 @@ export async function createProduct(formData: FormData): Promise<ProductActionRe
       }
     }
 
-    const { categoryId, ...data } = parsed.data
-    const category = await prisma.category.findUnique({ where: { slug: categoryId } })
-    if (!category) {
-      return {
-        ok: false,
-        formError: 'Kategori bilgisi geçersiz.',
-        fieldErrors: { categoryId: 'Kategori bulunamadı' },
-      }
-    }
-
-    const product = await prisma.product.create({
-      data: {
-        ...data,
-        categories: {
-          create: { categoryId: category.id },
-        },
-      },
-    })
+    const product = await prisma.product.create({ data: parsed.data })
 
     return { ok: true, productId: product.id }
   } catch (error) {
@@ -175,8 +185,6 @@ export async function updateProduct(id: string, formData: FormData): Promise<Pro
       description: formData.get('description'),
       price: formData.get('price'),
       stock: formData.get('stock'),
-      status: formData.get('status'),
-      categoryId: formData.get('categoryId'),
     })
 
     if (!parsed.success) {
@@ -187,27 +195,7 @@ export async function updateProduct(id: string, formData: FormData): Promise<Pro
       }
     }
 
-    const { categoryId, ...data } = parsed.data
-
-    const category = await prisma.category.findUnique({ where: { slug: categoryId } })
-    if (!category) {
-      return {
-        ok: false,
-        formError: 'Kategori bilgisi geçersiz.',
-        fieldErrors: { categoryId: 'Kategori bulunamadı' },
-      }
-    }
-
-    await prisma.product.update({
-      where: { id },
-      data: {
-        ...data,
-        categories: {
-          deleteMany: {},
-          create: { categoryId: category.id },
-        },
-      },
-    })
+    await prisma.product.update({ where: { id }, data: parsed.data })
 
     return { ok: true }
   } catch (error) {
@@ -246,7 +234,15 @@ export async function deleteProduct(id: string): Promise<ProductActionResult> {
       }
     }
 
-    await deleteProductAssets(product.id, product.images)
+    try {
+      await deleteProductAssets(product.id, product.images)
+    } catch (storageError) {
+      // Do not block product deletion if storage cleanup has partial failures.
+      logger.warn('Product storage cleanup failed; continuing with DB delete', {
+        productId: product.id,
+        error: storageError instanceof Error ? storageError.message : String(storageError),
+      })
+    }
     await prisma.product.delete({ where: { id } })
 
     revalidatePath('/')
@@ -276,21 +272,3 @@ export async function toggleFeatured(id: string, current: boolean): Promise<Prod
   }
 }
 
-export async function toggleProductStatus(id: string, currentStatus: string): Promise<ProductActionResult> {
-  try {
-    await requireAdmin()
-    const nextStatus = currentStatus === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED'
-    await prisma.product.update({
-      where: { id },
-      data: { status: nextStatus },
-    })
-    return { ok: true, nextStatus }
-  } catch (error) {
-    logger.error('toggleProductStatus action failed', error, { productId: id, currentStatus })
-    return {
-      ok: false,
-      formError: 'Ürün durumu güncellenemedi.',
-      fieldErrors: {},
-    }
-  }
-}

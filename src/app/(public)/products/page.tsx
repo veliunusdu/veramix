@@ -1,21 +1,17 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { getPublishedProducts, getAllCategories } from '@/lib/products'
+import { getProducts } from '@/lib/products'
 import ProductCard from '@/components/public/ProductCard'
 import SearchBar from '@/components/public/SearchBar'
-import CategoryFilter from '@/components/public/CategoryFilter'
 
 type Props = {
-  searchParams: Promise<{ search?: string; category?: string }>
+  searchParams: Promise<{ search?: string }>
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
-  const { search, category } = await searchParams
+  const { search } = await searchParams
 
-  const [products, categories] = await Promise.all([
-    getPublishedProducts({ search, categorySlug: category }),
-    getAllCategories(),
-  ])
+  const products = await getProducts({ search })
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -28,7 +24,6 @@ export default async function ProductsPage({ searchParams }: Props) {
       {/* Filters */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-8">
         <Suspense>
-          <CategoryFilter categories={categories} />
           <SearchBar />
         </Suspense>
       </div>

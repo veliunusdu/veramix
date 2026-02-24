@@ -29,6 +29,42 @@ export function getSupabaseBucket(): string {
   return raw || DEFAULT_SUPABASE_BUCKET
 }
 
+function getProjectRefFromDatabaseUrl(databaseUrl: string): string | null {
+  try {
+    const parsed = new URL(databaseUrl)
+    const username = decodeURIComponent(parsed.username || '')
+    const match = username.match(/^postgres\.([a-z0-9-]+)$/i)
+    if (match) return match[1]
+  } catch {
+    // noop: fall back to regex parsing below
+  }
+
+  const fallback = databaseUrl.match(/postgres\.([a-z0-9-]+):/i)
+  return fallback?.[1] ?? null
+}
+
+export function resolveSupabaseUrlFromEnv(
+  env: Pick<NodeJS.ProcessEnv, 'SUPABASE_URL' | 'DATABASE_URL'>,
+): string | null {
+  const explicit = env.SUPABASE_URL?.trim()
+  if (explicit) return explicit
+
+  const databaseUrl = env.DATABASE_URL?.trim()
+  if (!databaseUrl) return null
+
+  const projectRef = getProjectRefFromDatabaseUrl(databaseUrl)
+  if (!projectRef) return null
+  return `https://${projectRef}.supabase.co`
+}
+
+export function getSupabaseUrl(): string | null {
+  loadStorageEnv()
+  return resolveSupabaseUrlFromEnv({
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    DATABASE_URL: process.env.DATABASE_URL,
+  })
+}
+
 export function getCloudinaryFolder(productId: string): string {
   loadStorageEnv()
   const base = process.env.CLOUDINARY_FOLDER?.trim() || DEFAULT_CLOUDINARY_FOLDER
@@ -37,11 +73,13 @@ export function getCloudinaryFolder(productId: string): string {
 
 export function assertSupabaseStorageEnv() {
   loadStorageEnv()
-  const url = process.env.SUPABASE_URL?.trim()
+  const url = getSupabaseUrl()
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
 
   if (!url || !key) {
-    throw new Error('SUPABASE_URL veya SUPABASE_SERVICE_ROLE_KEY eksik')
+    throw new Error(
+      'SUPABASE_URL (veya Supabase DATABASE_URL) veya SUPABASE_SERVICE_ROLE_KEY eksik',
+    )
   }
 
   try {

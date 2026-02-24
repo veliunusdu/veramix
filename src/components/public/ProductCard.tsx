@@ -7,7 +7,6 @@ type Product = {
   price: number | { toNumber: () => number }
   stock: number
   images: { url: string }[]
-  categories: { category: { name: string } }[]
 }
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -26,9 +25,6 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
         </div>
         <div className="space-y-1">
-          <p className="text-xs text-gray-400">
-            {product.categories[0]?.category.name}
-          </p>
           <h3 className="font-semibold text-gray-800">{product.name}</h3>
           <div className="flex justify-between items-center">
             <span className="text-blue-600 font-bold">

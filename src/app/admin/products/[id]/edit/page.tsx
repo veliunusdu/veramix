@@ -5,17 +5,10 @@ import { useRouter, useParams } from 'next/navigation'
 import {
   updateProduct,
   deleteProduct,
-  toggleProductStatus,
   type ProductFieldErrors,
 } from '@/lib/actions/product'
 import ImageUploader from '@/components/admin/ImageUploader'
 import FeaturedToggle from '@/components/admin/FeaturedToggle'
-
-const categoryOptions = [
-  { slug: 'elektronik', label: 'Elektronik' },
-  { slug: 'giyim', label: 'Giyim' },
-  { slug: 'kitap', label: 'Kitap' },
-]
 
 type ImageRecord = {
   id: string
@@ -31,9 +24,7 @@ type Product = {
   description: string | null
   price: string
   stock: number
-  status: string
   isFeatured: boolean
-  categories: { category: { slug: string } }[]
   images: ImageRecord[]
 }
 
@@ -91,21 +82,7 @@ export default function EditProductPage() {
     router.push('/admin/products')
   }
 
-  async function handleToggle() {
-    if (!product) return
-    setFormError('')
-    const result = await toggleProductStatus(id, product.status)
-    if (!result.ok) {
-      setFormError(result.formError)
-      return
-    }
-
-    setProduct((prev) => (prev ? { ...prev, status: result.nextStatus ?? prev.status } : prev))
-  }
-
   if (!product) return <div className="p-8 text-gray-500">Yükleniyor...</div>
-
-  const currentCategorySlug = product.categories[0]?.category.slug ?? ''
 
   return (
     <div className="max-w-2xl">
@@ -115,16 +92,6 @@ export default function EditProductPage() {
           <h1 className="text-2xl font-bold">Ürünü Düzenle</h1>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={handleToggle}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${
-              product.status === 'PUBLISHED'
-                ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                : 'bg-green-100 text-green-700 hover:bg-green-200'
-            }`}
-          >
-            {product.status === 'PUBLISHED' ? 'Taslağa Al' : 'Yayına Al'}
-          </button>
           <FeaturedToggle id={id} isFeatured={product.isFeatured} />
           <button
             onClick={handleDelete}
@@ -200,35 +167,6 @@ export default function EditProductPage() {
             />
             {fieldErrors.stock && <p className="text-red-500 text-xs mt-1">{fieldErrors.stock}</p>}
           </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Kategori</label>
-          <select
-            name="categoryId"
-            defaultValue={currentCategorySlug}
-            required
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Seç...</option>
-            {categoryOptions.map((cat) => (
-              <option key={cat.slug} value={cat.slug}>{cat.label}</option>
-            ))}
-          </select>
-          {fieldErrors.categoryId && <p className="text-red-500 text-xs mt-1">{fieldErrors.categoryId}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Durum</label>
-          <select
-            name="status"
-            defaultValue={product.status}
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="DRAFT">Taslak</option>
-            <option value="PUBLISHED">Yayında</option>
-          </select>
-          {fieldErrors.status && <p className="text-red-500 text-xs mt-1">{fieldErrors.status}</p>}
         </div>
 
         {formError && <p className="text-red-500 text-sm">{formError}</p>}

@@ -58,15 +58,6 @@ export default async function ProductDetailPage({ params }: Props) {
 
           {/* Info */}
           <div className="p-8 flex flex-col justify-center space-y-5">
-            {product.categories.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {product.categories.map((c) => (
-                  <span key={c.category.name} className="bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
-                    {c.category.name}
-                  </span>
-                ))}
-              </div>
-            )}
             <h1 className="text-3xl font-extrabold text-gray-900">{product.name}</h1>
             <p className="text-3xl font-bold text-blue-600">
               {price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}

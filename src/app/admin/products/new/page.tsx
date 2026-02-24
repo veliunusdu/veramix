@@ -4,12 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createProduct, type ProductFieldErrors } from '@/lib/actions/product'
 
-const categories = [
-  { id: 'elektronik', label: 'Elektronik' },
-  { id: 'giyim', label: 'Giyim' },
-  { id: 'kitap', label: 'Kitap' },
-]
-
 export default function NewProductPage() {
   const router = useRouter()
   const [formError, setFormError] = useState('')
@@ -116,33 +110,6 @@ export default function NewProductPage() {
             />
             {fieldErrors.stock && <p className="text-red-500 text-xs mt-1">{fieldErrors.stock}</p>}
           </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Kategori</label>
-          <select
-            name="categoryId"
-            required
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Seç...</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.label}</option>
-            ))}
-          </select>
-          {fieldErrors.categoryId && <p className="text-red-500 text-xs mt-1">{fieldErrors.categoryId}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Durum</label>
-          <select
-            name="status"
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="DRAFT">Taslak</option>
-            <option value="PUBLISHED">Yayında</option>
-          </select>
-          {fieldErrors.status && <p className="text-red-500 text-xs mt-1">{fieldErrors.status}</p>}
         </div>
 
         {formError && <p className="text-red-500 text-sm">{formError}</p>}

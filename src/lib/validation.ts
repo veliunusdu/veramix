@@ -13,8 +13,6 @@ export const productSchema = z.object({
   description: z.string().optional(),
   price: z.coerce.number().positive('Fiyat pozitif olmalı'),
   stock: z.coerce.number().int().min(0, 'Stok negatif olamaz'),
-  status: z.enum(['DRAFT', 'PUBLISHED']),
-  categoryId: z.string().min(1, 'Kategori zorunlu'),
 })
 
 export type ProductInput = z.infer<typeof productSchema>
