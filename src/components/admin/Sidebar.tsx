@@ -17,7 +17,7 @@ export default function Sidebar() {
   return (
     <aside className="flex w-64 flex-col border-r border-black/4 bg-white">
       <div className="flex h-16 shrink-0 items-center gap-3 px-6">
-        <Image src="/logo.png" alt="Veramix" width={585} height={594} className="h-9 w-auto" />
+        <Image src="/main_logo.png" alt="Veramix" width={864} height={1184} className="h-12 w-auto" />
         <p className="text-sm font-semibold tracking-tight text-zinc-900">Admin</p>
       </div>
 

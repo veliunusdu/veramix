@@ -71,7 +71,7 @@ export default async function Page() {
       <header className="fixed w-full top-0 z-50 glass-effect border-b border-slate-200">
         <div className="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Veramix" width={585} height={594} className="h-12 w-auto" priority />
+            <Image src="/main_logo.png" alt="Veramix" width={864} height={1184} className="h-18 w-auto" priority />
             <span className="text-2xl font-bold tracking-tight text-slate-900">Veramix</span>
           </Link>
 
@@ -215,6 +215,7 @@ export default async function Page() {
                     src={product.image}
                     alt={product.alt}
                     fill
+                    unoptimized
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
@@ -338,7 +339,7 @@ export default async function Page() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
             <div className="space-y-4">
               <div className="mb-2">
-                <Image src="/logo.png" alt="Veramix" width={585} height={594} className="h-12 w-auto brightness-0 invert" />
+                <Image src="/main_logo.png" alt="Veramix" width={864} height={1184} className="h-22 w-auto brightness-0 invert" />
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">Yuksek kaliteli su armaturleri ve banyo cozumleri ile yasam alanlariniza deger katiyoruz.</p>
               <div className="flex gap-4 pt-2">
