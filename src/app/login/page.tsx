@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { loginSchema } from '@/lib/validation'
 
 export default function LoginPage() {
@@ -55,9 +56,9 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <a href="/" className="inline-block">
+          <Link href="/" className="inline-block">
             <span className="text-3xl font-extrabold text-blue-700">Veramix</span>
-          </a>
+          </Link>
           <p className="text-gray-400 text-sm mt-1">Yönetici Paneli</p>
         </div>
 
@@ -105,7 +106,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-sm text-gray-400 mt-6">
-          <a href="/" className="hover:text-blue-600 transition-colors">← Ana Sayfaya Dön</a>
+          <Link href="/" className="hover:text-blue-600 transition-colors">← Ana Sayfaya Dön</Link>
         </p>
       </div>
     </div>

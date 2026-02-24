@@ -41,6 +41,7 @@ export default async function DashboardOverview() {
         select: {
           id: true,
           name: true,
+          slug: true,
           _count: { select: { products: true } },
         },
       }),
@@ -240,11 +241,15 @@ export default async function DashboardOverview() {
                 topCategories.map((category) => (
                   <div key={category.id} className="group flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-zinc-300 transition-colors group-hover:bg-zinc-900" />
-                      <span className="text-sm font-medium text-zinc-600 transition-colors group-hover:text-zinc-900">
-                        {category.name}
-                      </span>
-                    </div>
+                          {category.slug === 'aksesuarlar' ? (
+                            <span className="material-icons text-sm text-zinc-600">towel</span>
+                          ) : (
+                            <div className="h-2 w-2 rounded-full bg-zinc-300 transition-colors group-hover:bg-zinc-900" />
+                          )}
+                          <span className="text-sm font-medium text-zinc-600 transition-colors group-hover:text-zinc-900">
+                            {category.name}
+                          </span>
+                        </div>
                     <span className="inline-flex min-w-8 items-center justify-center rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-semibold text-zinc-700">
                       {category._count.products}
                     </span>

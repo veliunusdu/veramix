@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { LayoutDashboard, Package, LogOut, Droplets } from 'lucide-react'
+import { LayoutDashboard, Package, LogOut } from 'lucide-react'
 
 const links = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -16,12 +17,8 @@ export default function Sidebar() {
   return (
     <aside className="flex w-64 flex-col border-r border-black/4 bg-white">
       <div className="flex h-16 shrink-0 items-center gap-3 px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-sm shadow-zinc-900/20">
-          <Droplets className="h-4 w-4" />
-        </div>
-        <div>
-          <p className="text-sm font-semibold tracking-tight text-zinc-900">Veramix Admin</p>
-        </div>
+        <Image src="/logo.png" alt="Veramix" width={585} height={594} className="h-9 w-auto" />
+        <p className="text-sm font-semibold tracking-tight text-zinc-900">Admin</p>
       </div>
 
       <nav className="flex-1 space-y-1 p-4">

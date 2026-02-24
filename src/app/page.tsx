@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getFeaturedProducts } from '@/lib/products'
+import Image from 'next/image'
 
 export const metadata = {
   title: 'Veramix | Premium Su Armatürleri',
@@ -10,7 +10,7 @@ export const metadata = {
 export const dynamic = 'force-dynamic'
 
 const WHATSAPP =
-  'https://wa.me/905425129747?text=Merhaba%20Veramix%2C%20bilgi%20almak%20istiyorum.'
+  'https://wa.me/905425129747?text=Merhaba%20%2C%20ürün%20kataloğunuzu%20ve%20mevcut%20modellerinizi%20gönderebilir%20misiniz%3F'
 const TEL = 'tel:05425129747'
 // Use the contact address shown on the page for maps and directions
 const MAPS_QUERY = encodeURIComponent('8 Mart Mahallesi Gülşilan Sokak A Blok No:25, Nusaybin, Mardin')
@@ -19,7 +19,7 @@ const CATEGORIES = [
   { icon: 'kitchen',    label: 'Mutfak',      sub: 'Eviye bataryaları',      slug: 'mutfak' },
   { icon: 'water_drop', label: 'Lavabo',      sub: 'Banyo bataryaları',      slug: 'lavabo' },
   { icon: 'shower',     label: 'Duş',         sub: 'Sistemler & Başlıklar',  slug: 'dus' },
-  { icon: 'towel',      label: 'Aksesuarlar', sub: 'Tamamlayıcı ürünler',    slug: 'aksesuarlar' },
+  { icon: 'handyman',   label: 'Aksesuarlar', sub: 'Tamamlayıcı ürünler',    slug: 'aksesuarlar' },
   { icon: 'grid_view',  label: 'Ankastre',    sub: 'Gömme sistemler',        slug: 'ankastre' },
 ]
 
@@ -31,18 +31,23 @@ const FEATURES = [
   { icon: 'support_agent', text: '7/24 Teknik Destek' },
 ]
 
-export default async function Page() {
-  const featuredProducts = await getFeaturedProducts()
+const COLLECTION_PRODUCTS = [
+  'Lavabo bataryası 🚰',
+  'Mutfak bataryası 🍽️',
+  'Duş bataryası 🚿',
+  'Küvet bataryası 🛁',
+  'El duşu seti 🚿',
+  'Taharet musluğu',
+]
 
+export default async function Page() {
   return (
     <>
       {/* Header */}
       <header className="fixed w-full top-0 z-50 glass-effect border-b border-slate-200">
         <div className="max-w-[1440px] mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex iadrestems-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
-              <span className="material-icons">water_drop</span>
-            </div>
+          <Link href="/" className="flex items-center gap-3">
+            <Image src="/logo.png" alt="Veramix" width={585} height={594} className="h-12 w-auto" priority />
             <span className="text-2xl font-bold tracking-tight text-slate-900">Veramix</span>
           </Link>
 
@@ -93,13 +98,6 @@ export default async function Page() {
                   <span className="material-icons text-primary">storefront</span>
                   Showroom / İletişim
                 </a>
-              </div>
-              <div className="pt-8 flex items-center gap-8 border-t border-slate-100">
-                <div><p className="text-2xl font-bold text-slate-900">10+</p><p className="text-sm text-slate-500">Yıllık Tecrübe</p></div>
-                <div className="w-px h-10 bg-slate-200" />
-                <div><p className="text-2xl font-bold text-slate-900">500+</p><p className="text-sm text-slate-500">Ürün Çeşidi</p></div>
-                <div className="w-px h-10 bg-slate-200" />
-                <div><p className="text-2xl font-bold text-slate-900">5.000+</p><p className="text-sm text-slate-500">Mutlu Müşteri</p></div>
               </div>
             </div>
 
@@ -153,58 +151,58 @@ export default async function Page() {
           </div>
         </section>
 
-        {/* Featured Products — admin-controlled */}
-        {featuredProducts.length > 0 && (
-          <section className="py-20 bg-white">
-            <div className="max-w-[1440px] mx-auto px-6">
-              <div className="text-center mb-16">
-                  <h2 className="text-3xl font-bold text-slate-900 mb-4">Öne Çıkan Ürünler</h2>
-                  <p className="text-slate-500 max-w-2xl mx-auto">En çok tercih edilen, yüksek kaliteli ve modern tasarımlı ürünlerimiz.</p>
-                </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {featuredProducts.map((p) => {
-                  const image = p.images[0]?.url
-                  const categoryName = p.categories[0]?.category.name ?? ''
-                  return (
-                    <Link key={p.id} href={`/products/${p.slug}`}
-                      className="group bg-background-light rounded-xl overflow-hidden border border-slate-100 hover:border-primary/50 transition-all hover:shadow-lg block">
-                      <div className="relative aspect-square bg-white flex items-center justify-center overflow-hidden">
-                        {image ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img alt={p.name}
-                            className="w-full h-full object-contain p-8 group-hover:scale-105 transition-transform duration-300"
-                            src={image}
-                          />
-                        ) : (
-                          <span className="material-icons text-7xl text-slate-200">water_drop</span>
-                        )}
-                      </div>
-                      <div className="p-5">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-semibold text-primary/80 uppercase tracking-wider">{categoryName}</span>
-                          <div className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                            <span className="material-icons text-[12px] text-green-600">verified</span>
-                            5 Yil Garanti
-                          </div>
-                        </div>
-                        <h3 className="text-base font-bold text-slate-900 mb-4 group-hover:text-primary transition-colors">{p.name}</h3>
-                        <span className="w-full py-2.5 rounded-lg border border-slate-200 text-slate-700 font-medium group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all flex items-center justify-center gap-2">
-                          Detaylı İncele <span className="material-icons text-sm">arrow_forward</span>
-                        </span>
-                      </div>
-                    </Link>
-                  )
-                })}
+        {/* About */}
+        <section id="about" className="py-20 bg-white border-y border-slate-100">
+          <div className="max-w-[1440px] mx-auto px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+              <div>
+                <h2 className="text-3xl font-bold text-slate-900 mb-4">Hakkımızda</h2>
+                <p className="text-slate-600 leading-relaxed">
+                  Veramix olarak mutfak ve banyolar için uzun ömürlü, şık ve işlevsel armatür
+                  çözümleri geliştiriyoruz. Dayanıklı malzeme kalitesi ve servis desteğiyle,
+                  satış öncesinden satış sonrasına kadar güvenilir bir deneyim sunuyoruz.
+                </p>
               </div>
-              <div className="text-center mt-12">
-                <Link href="/products"
-                  className="inline-flex items-center gap-2 px-8 py-3.5 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-colors shadow-lg">
-                  Tum Urunleri Gor <span className="material-icons">arrow_forward</span>
-                </Link>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {FEATURES.slice(0, 4).map((f) => (
+                  <div key={`about-${f.text}`} className="rounded-xl border border-slate-200 p-5 bg-slate-50">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 text-primary flex items-center justify-center mb-3">
+                      <span className="material-icons text-lg">{f.icon}</span>
+                    </div>
+                    <p className="font-semibold text-slate-900">{f.text}</p>
+                  </div>
+                ))}
               </div>
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+
+        {/* Photo Gallery */}
+        <section className="py-20 bg-white">
+          <div className="max-w-[1440px] mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Koleksiyonumuz</h2>
+              <p className="text-slate-500 max-w-2xl mx-auto">Modern tasarım ve üstün kaliteyle üretilen su armatürü çözümleri.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {COLLECTION_PRODUCTS.map((product) => (
+                <div key={product} className="rounded-xl border border-slate-200 bg-slate-50 p-6 hover:border-primary/40 hover:shadow-md transition-all">
+                  <div className="w-11 h-11 rounded-full bg-blue-100 text-primary flex items-center justify-center mb-4">
+                    <span className="material-icons">plumbing</span>
+                  </div>
+                  <h3 className="font-semibold text-slate-900 text-lg">{product}</h3>
+                  <p className="text-sm text-slate-500 mt-2">Modern tasarım, dayanıklı gövde ve uzun ömürlü kullanım.</p>
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-12">
+              <Link href="/products"
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-colors shadow-lg">
+                Tüm Ürünleri Gör <span className="material-icons">arrow_forward</span>
+              </Link>
+            </div>
+          </div>
+        </section>
 
         {/* Trust Band */}
         <section className="bg-primary text-white py-14">
@@ -218,50 +216,6 @@ export default async function Page() {
                   <span className="text-sm font-semibold opacity-90">{f.text}</span>
                 </div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* About */}
-        <section id="about" className="py-20 bg-background-light">
-          <div className="max-w-[1440px] mx-auto px-6">
-            <div className="bg-white rounded-2xl p-8 lg:p-16 border border-slate-200 shadow-xl overflow-hidden relative">
-              <div className="absolute -right-20 -top-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
-              <div className="relative z-10 flex flex-col md:flex-row items-start justify-between gap-10">
-                <div className="max-w-2xl">
-                  <span className="text-primary font-bold tracking-wide text-sm uppercase">Hakkimizda</span>
-                  <h2 className="text-3xl font-bold text-slate-900 mt-2 mb-4">Veramix Su Armaturleri</h2>
-                  <p className="text-slate-600 leading-relaxed mb-4">
-                    Veramix olarak 10 yili askin tecrubemizle kaliteli malzeme ve ustun iscilikte
-                    uretilen su armuturlerini Turkiye genelinde sunuyoruz. Musteri memnuniyeti ve
-                    guvenilirlik is yapis seklimizin temelini olusturur.
-                  </p>
-                  <p className="text-slate-600 leading-relaxed">
-                    Sektordeki gelismeleri yakından takip ediyor, urun portfoyumuzu surekli
-                    genisletiyoruz. %100 pirinc govde ve seramik kartus teknolojisiyle uzun
-                    omurlu cozumler sunuyoruz.
-                  </p>
-                  <div className="mt-8 flex flex-wrap gap-4">
-                    <button className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary transition-colors">
-                      <span className="material-icons">download</span>
-                      2024 Katalogunu Indir
-                    </button>
-                    <Link href="/products"
-                      className="flex items-center gap-3 border border-slate-300 text-slate-700 px-6 py-3 rounded-lg font-semibold hover:bg-slate-50 transition-colors">
-                      Urunleri Incele
-                    </Link>
-                  </div>
-                </div>
-                <div className="flex-shrink-0 hidden md:block">
-                  <div className="w-48 h-56 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg shadow-2xl rotate-3 flex items-center justify-center border border-white/20">
-                    <div className="text-center">
-                      <span className="material-icons text-6xl text-primary mb-2">menu_book</span>
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Veramix</p>
-                      <p className="text-[10px] text-slate-400">2024 Collection</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </section>
@@ -352,11 +306,8 @@ export default async function Page() {
         <div className="max-w-[1440px] mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-white mb-2">
-                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                  <span className="material-icons text-sm">water_drop</span>
-                </div>
-                <span className="text-xl font-bold">Veramix</span>
+              <div className="mb-2">
+                <Image src="/logo.png" alt="Veramix" width={585} height={594} className="h-12 w-auto brightness-0 invert" />
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">Yuksek kaliteli su armaturleri ve banyo cozumleri ile yasam alanlariniza deger katiyoruz.</p>
               <div className="flex gap-4 pt-2">

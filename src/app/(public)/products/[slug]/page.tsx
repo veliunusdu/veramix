@@ -1,5 +1,6 @@
 import { getProductBySlug } from '@/lib/products'
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 type Props = {
@@ -30,9 +31,9 @@ export default async function ProductDetailPage({ params }: Props) {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
       {/* Breadcrumb */}
       <nav className="text-sm text-gray-400 mb-6 flex items-center gap-2">
-        <a href="/" className="hover:text-blue-600 transition-colors">Ana Sayfa</a>
+        <Link href="/" className="hover:text-blue-600 transition-colors">Ana Sayfa</Link>
         <span>/</span>
-        <a href="/products" className="hover:text-blue-600 transition-colors">Ürünler</a>
+        <Link href="/products" className="hover:text-blue-600 transition-colors">Ürünler</Link>
         <span>/</span>
         <span className="text-gray-600 font-medium">{product.name}</span>
       </nav>
@@ -118,7 +119,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
       {/* Back */}
       <div className="mt-8">
-        <a href="/products" className="text-sm text-blue-600 hover:underline">← Ürün listesine dön</a>
+        <Link href="/products" className="text-sm text-blue-600 hover:underline">← Ürün listesine dön</Link>
       </div>
     </div>
   )

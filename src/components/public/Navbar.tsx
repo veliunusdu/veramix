@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 
 export default function Navbar() {
@@ -11,15 +12,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold text-blue-700 tracking-tight">Veramix</span>
-          <span className="hidden sm:inline text-xs text-gray-400 font-medium">Su Armatürleri</span>
+          <Image src="/logo.png" alt="Veramix" width={585} height={594} className="h-10 w-auto" priority />
+          <span className="text-xl font-bold text-slate-900 tracking-tight">Veramix</span>
         </Link>
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
           <Link href="/products" className="hover:text-blue-600 transition-colors">Ürünler</Link>
-          <a href="#about" className="hover:text-blue-600 transition-colors">Hakkımızda</a>
-          <a href="#contact" className="hover:text-blue-600 transition-colors">İletişim</a>
+          <Link href="/#about" className="hover:text-blue-600 transition-colors">Hakkımızda</Link>
+          <Link href="/#contact" className="hover:text-blue-600 transition-colors">İletişim</Link>
           <a
             href="https://wa.me/905425129747?text=Merhaba%20Veramix%2C%20bilgi%20almak%20istiyorum."
             target="_blank"
@@ -46,8 +47,8 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden bg-white border-t border-gray-100 px-4 pb-4 space-y-2 text-sm font-medium text-gray-700">
           <Link href="/products" className="block py-2 hover:text-blue-600" onClick={() => setOpen(false)}>Ürünler</Link>
-          <a href="#about" className="block py-2 hover:text-blue-600" onClick={() => setOpen(false)}>Hakkımızda</a>
-          <a href="#contact" className="block py-2 hover:text-blue-600" onClick={() => setOpen(false)}>İletişim</a>
+          <Link href="/#about" className="block py-2 hover:text-blue-600" onClick={() => setOpen(false)}>Hakkımızda</Link>
+          <Link href="/#contact" className="block py-2 hover:text-blue-600" onClick={() => setOpen(false)}>İletişim</Link>
           <a
             href="https://wa.me/905425129747?text=Merhaba%20Veramix%2C%20bilgi%20almak%20istiyorum."
             target="_blank"

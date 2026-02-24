@@ -17,10 +17,10 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <head>
-        <link
-          href="https://fonts.googleapis.com/icon?family=Material+Icons"
-          rel="stylesheet"
-        />
+        {/* Preconnect to speed up Google Fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       </head>
       <body suppressHydrationWarning className={inter.className}>{children}</body>
     </html>

@@ -31,7 +31,12 @@ export default function CategoryFilter({ categories }: { categories: Category[] 
           href={buildHref(cat.slug)}
           className={`px-4 py-2 rounded-full text-sm ${currentCategory === cat.slug ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
         >
-          {cat.name}
+          <div className="inline-flex items-center gap-2">
+            {cat.slug === 'aksesuarlar' ? (
+              <span className="material-icons text-sm">towel</span>
+            ) : null}
+            <span>{cat.name}</span>
+          </div>
         </Link>
       ))}
     </div>

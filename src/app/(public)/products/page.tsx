@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import Link from 'next/link'
 import { getPublishedProducts, getAllCategories } from '@/lib/products'
 import ProductCard from '@/components/public/ProductCard'
 import SearchBar from '@/components/public/SearchBar'
@@ -38,7 +39,7 @@ export default async function ProductsPage({ searchParams }: Props) {
           <div className="text-5xl mb-4">🔍</div>
           <h2 className="text-xl font-semibold text-gray-700 mb-2">Ürün bulunamadı</h2>
           <p className="text-gray-400 mb-6">Farklı bir arama veya filtre deneyin.</p>
-          <a href="/products" className="inline-block bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">Filtreleri Temizle</a>
+          <Link href="/products" className="inline-block bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">Filtreleri Temizle</Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
